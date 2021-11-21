@@ -291,9 +291,11 @@ line_sight(p1, material, length) -> (
 );
 tube_display(p1,p2,p3,width,rminor) ->(
   p1=p1+[0.5,0.5,0.5];
+  p2=p2+[0.5,0.5,0.5];
+  p3=p3+[0.5,0.5,0.5];
   v1 = p2-p1;
   v3 = p3-p1;
-  color=0x0000FF80;
+  color=0x0000FFFF;
   vmajor = v3 - __proj(v3,v1);
   cylinder=false;
   rmajor = __norm(vmajor);
@@ -313,8 +315,9 @@ tube_display(p1,p2,p3,width,rminor) ->(
       put(cmax, _, ceil(p1:_ + dn));
     );
   );
-  draw_shape('box', 15, 'from', cmin, 'to', cmax, 'color', 0x00FFFFFF, 'line', 3, 'fill', 0x00FFFF12);
-  
+  shapelist=l();
+  //draw_shape('box', 15, 'from', cmin, 'to', cmax, 'color', 0x00FFFFFF, 'line', 3, 'fill', 0x00FFFF12);
+  shapelist:null=l('box', 15, 'from', cmin, 'to', cmax, 'color', 0x00FFFFFF, 'line', 3, 'fill', 0x00FFFF12);
   //the h in hminor and hmajor represent the hat notation for unit vectors
   hminor = __normalize(__cross_prod(vmajor,v1));
   hmajor = __normalize(vmajor);
@@ -332,21 +335,22 @@ tube_display(p1,p2,p3,width,rminor) ->(
   theta=acos(v1:2/__norm([v1:0,v1:2]));
   if(v1:0>0,theta=theta*-1);
   phi=90.0-acos(-v1:1/__norm(v1));
-  print('facing: ('+str(theta)+'/'+str(phi)+')');
+  print('facing: ('+str(round(theta*10)/10)+'/'+str(round(phi*10)/10)+')');
   print('length: '+str(__norm(v1)));
   //print(phi);
+  
   loop(nseg,
     ta=_*360/nseg;
     tb=(_+1)*360/nseg;
     pa=vminor*sin(ta)+vmajor*cos(ta)+p1;
     pb=vminor*sin(tb)+vmajor*cos(tb)+p1;
-    draw_shape('line',durration,'from',pa,'to',pb,'color', color);
-    draw_shape('line',durration,'from',pa+v1,'to',pb+v1,'color', color);
+    shapelist:null=l('line',durration,'from',pa,'to',pb,'color', color);
+    shapelist:null=l('line',durration,'from',pa+v1,'to',pb+v1,'color', color);
     if(false==cylinder,
       pc=hminor*(width+rminor)*sin(ta)+hmajor*(width+rmajor)*cos(ta)+p1;
       pd=hminor*(width+rminor)*sin(tb)+hmajor*(width+rmajor)*cos(tb)+p1;
-      draw_shape('line',durration,'from',pc,'to',pd,'color', color);
-      draw_shape('line',durration,'from',pc+v1,'to',pd+v1,'color', color);
+      shapelist:null=l('line',durration,'from',pc,'to',pd,'color', color);
+      shapelist:null=l('line',durration,'from',pc+v1,'to',pd+v1,'color', color);
     );
   );
   loop(4,
@@ -356,20 +360,20 @@ tube_display(p1,p2,p3,width,rminor) ->(
       pprimary=vmajor;psecondary=hmajor*(width+rmajor)
     );
     if(_>1,inv=-1,inv=1);
-    draw_shape('line',durration,'from',inv*pprimary+p1,'to',inv*psecondary+p1,'color', color);
-    draw_shape('line',durration,'from',inv*pprimary+p1,'to',inv*pprimary+p2,'color', color);
-    draw_shape('line',durration,'from',inv*pprimary+p2,'to',inv*psecondary+p2,'color', color);
-    draw_shape('line',durration,'from',inv*psecondary+p2,'to',inv*psecondary+p1,'color', color);
+    shapelist:null=l('line',durration,'from',inv*pprimary+p1,'to',inv*psecondary+p1,'color', color);
+    shapelist:null=l('line',durration,'from',inv*pprimary+p1,'to',inv*pprimary+p2,'color', color);
+    shapelist:null=l('line',durration,'from',inv*pprimary+p2,'to',inv*psecondary+p2,'color', color);
+    shapelist:null=l('line',durration,'from',inv*psecondary+p2,'to',inv*psecondary+p1,'color', color);
     
 
   ));
-  draw_shape('line',durration,'from',p1,'to',p2,'color', color);
-  draw_shape('line',durration,'from',p1,'to',p1+vmajor,'color', color);
-  draw_shape('line',durration,'from',p1+vmajor,'to',p2+vmajor,'color', color);
-  draw_shape('line',durration,'from',p1,'to',p1+vminor,'color', color);
-  draw_shape('line',durration,'from',p2+vminor,'to',p1+vminor,'color', color);
+  shapelist:null=l('line',durration,'from',p1,'to',p2,'color', color);
+  shapelist:null=l('line',durration,'from',p1,'to',p1+vmajor,'color', color);
+  shapelist:null=l('line',durration,'from',p1+vmajor,'to',p2+vmajor,'color', color);
+  shapelist:null=l('line',durration,'from',p1,'to',p1+vminor,'color', color);
+  shapelist:null=l('line',durration,'from',p2+vminor,'to',p1+vminor,'color', color);
+  draw_shape(shapelist);
   
-
 );
 tube_elipse(p1,p2,p3,material,width,rminor) ->(
   v1 = p2-p1;
@@ -483,7 +487,7 @@ _flood_delete(start) -> (
 
 // Spawn a marker
 __mark(i, position, dim) -> (
- 	colours = l('red', 'lime', 'light_blue'); 
+ 	colours = l('red', 'lime', 'light_blue','orange'); 
 	e = create_marker('pos' + i, position + l(0.5, 0.5, 0.5), colours:(i-1) + '_concrete'); // crete the marker
 	run(str( //modify some stuff to make it fancier
 		'data merge entity %s {Glowing:1b, Fire:32767s, Marker:1b}', query(e, 'uuid') 
@@ -743,15 +747,16 @@ __config() -> {
     'tube display <thickness> <rminor>' -> _(w, r) -> __callif('tube_display', w,r),
     'tube display <thickness>' -> _(w) -> __callif('tube_display', w,null),
 		'distance' -> _() -> __callif('distance'),
-    'markers save <setnum> <savename>' -> 'save_markers',
-    'markers load <setnum> <savename>' -> 'load_markers',
 		'undo <actions>' -> 'undo',
 		'undo jump <actions>' -> 'go_back_stories',
 		'markers reset' -> 'reset_positions',
 		'markers toggle' -> 'toggle_show_pos',
 		'markers set <index>' -> 'set_pos',
 		'markers get' -> 'get_pos',
-  
+    'markers save <setnum> <savename>' -> 'save_markers',
+    'markers load <setnum> <savename>' -> 'load_markers',
+    //'markers save relative <setnum> <savename>' -> 'load_markers', //not implmented
+    
 	},
 	'arguments' -> {
 		'actions' -> {'type'->'int', 'min'->1, 'suggest'->[1,3,5]},
