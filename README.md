@@ -30,6 +30,8 @@ Shapes is an app to draw shapes in-game, but, unlike the usual shape-drawing too
 
 ### Positions
 To set positions, grab a golden sword and left click, right click or shift right click on a block with it, to set positions 1, 2 and 3, respectively. You can also do it by running `/shapes makers set <number>`. A marker will appear in the block the player is looking at. If no block is within reach, the marker will appear at the players feet (you can't left click air, sadly, carpet things). These markers are the positions the shapes will use as reference. You can also `/shapes markers get` to get the coordinates of all set positions and toggle the rendering of the markers with `markers toggle`. Note that while markers are not rendered, positions are still recorded. If you log out or something and markers are not deleted (it happens sometimes), run `/script run remove_all_markers()`.
+To save positions, run `/shapes markers save <index within savefile> <name of savefile>`
+To load positions from saved file run `/shapes markers load <index within savefile> <name of savefile>`
 
 ### The shapes
 Shapes are available under the subcommand `/shapes <shape_name> <block> <options>`. Almost all of the shapes accept a `<width>` parameter as first option and it defaults to one block width, if not given. Currently available shapes are:
